@@ -1,20 +1,18 @@
 
 import requests
 from bs4 import BeautifulSoup as BS
+import os
+import csv
 from pprint import pprint as pp
 
-
-#kod, obec, registrovani volici, odevzdane obalky, platne hlasy celkem, politicka strana a její počet platných hlasů...
+#csv files will include following columns from election scraper
+#Township code, Township, Registered voters, Envelopes received, Valid votes sum, Parties Votes...
 
 url = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
 
 r = requests.get(url)
 html = r.text
 soup = BS(html, "html.parser")
-
-#výběr dat(kod, obec, odkaz na konkrétní výsledky) pro všechny obce v okr. Nymburk. List o 3 položkách
-#data = soup.find_all("div", {"class":'t3'})
-
 
 #List kódů všech obcí
 lst_kodu_obci = [kod.text for kod in soup.find_all("td", {"class":"cislo"})]
@@ -67,3 +65,20 @@ for i in range(1,5): #Pro zevšeobecnění počtu bloků hlasů, užití try: ex
     else:
         lst_platne_hlasy.extend(lst_temp)
 
+#Vytvoření listu, který bude sloužit jako hlavička - složen z konkrétních oblastí a všech polit. stran
+lst_header_first = ['Township code', 'Township', 'Registered voters', 'Envelopes received', 'Valid votes sum']
+lst_header = lst_header_first + lst_nazvy_stran
+
+#Vytvoření listu, kde pořadí prvků bude odpovídat pořadí listu hlavičky
+lst_values = [lst_kodu_obci[0], lst_nazvy_obci[0], registrovani_volici_0, odevzdane_obalky_0, platne_obalky_0, *lst_platne_hlasy]
+
+#Vytvoření csv souboru pro zápis
+path = "C:\\Users\\david\\Desktop\\TestFolder\\test.csv"
+if os.path.exists(path):
+    with open(path, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(lst_values)
+else:
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(lst_header)
