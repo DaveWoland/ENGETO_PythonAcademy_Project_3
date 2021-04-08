@@ -1,22 +1,22 @@
 
 import requests
-from bs4 import BeautifulSoup as BS
 import sys
-import os
+from bs4 import BeautifulSoup as BS
 import csv
 from pprint import pprint as pp
 
 #csv file will include following columns from election scraper:
-    #Township code, Township, Registered voters, Envelopes received, Valid votes sum, Parties Votes...
+#Township code, Township, Registered voters, Envelopes received, Valid votes sum, Parties - Votes...
 
-url = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
+#URL = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
+URL = input("http: ")
 
 
 
 def main():
     #URL = sys.argv[1]
-    #results_file = town_results.csv
-    URL = url
+    #results_file = sys.argv[2]
+
     results_file = "town_results.csv"
     core_url = 'https://volby.cz/pls/ps2017nss/'
 
@@ -24,8 +24,9 @@ def main():
     # and at the end insert it into csv as list of lists
     lst_all_collected_data = []
 
+    print("DOWNLOADING... DATA FROM CHOSEN URL: ", URL)
 
-    r = requests.get(url)
+    r = requests.get(URL)
     html = r.text
     soup = BS(html, "html.parser")
 
@@ -103,24 +104,16 @@ def main():
     lst_election_header = ['Township code', 'Township', 'Registered voters', 'Envelopes received', 'Valid votes sum', *lst_parties_names]
 
 
+    print("SAVING DATA TO FILE: ", results_file)
+
     #Write ale the data into csv file
-    with open('C:\\Users\\david\\Desktop\\TestFolder\\' + results_file, mode='w', newline='') as f:
+    with open('C:\\Users\\david\\Desktop\\TestFolder\\' + str(results_file), mode='w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(lst_election_header)
         writer.writerows(lst_all_collected_data)
 
 
-
-# #Creation of csv file for inserting scrapped data
-# path = "C:\\Users\\david\\Desktop\\TestFolder\\test.csv"
-# if os.path.exists(path):
-#     with open(path, "a", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(lst_values)
-# else:
-#     with open(path, "w", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(lst_header)
+    print("ENDING election_scrapping")
 
 
 
@@ -179,5 +172,7 @@ def parties_votes(html_soup) -> list:
     return lst_party_valid_votes
 
 
-main()
+
+if __name__ == "__main__":
+    main()
 
