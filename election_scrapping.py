@@ -45,7 +45,7 @@ def main():
     lst_townships_urls = townships_urls(core_url, lst_townships_links)
 
 
-    #Extracting registered_voters, envelopes_received, valid_votes_sum in at once during loop iteration through all Townships_urls
+    #Extracting registered_voters, envelopes_received, valid_votes_sum and Parties votes for one Township for each loop iteration. And so on through all Townships_urls
 
     #Creation of temporary lists as mid step: due to return of some non-numeral values when numbers are greater than 999
     #Temporary lists will be itterated, in case non-numeral value the part will be replaced with ''(empty) and alle stored in new lists
@@ -53,6 +53,8 @@ def main():
     lst_registered_voters_temp = []
     lst_envelopes_received_temp = []
     lst_valid_votes_sum_temp = []
+
+    lst_party_valid_votes = []
 
     for link in lst_townships_urls:
         r_ = requests.get(link)
@@ -63,22 +65,28 @@ def main():
         lst_envelopes_received_temp.append(soup_.find("td", {"headers": "sa5"}).text)
         lst_valid_votes_sum_temp.append(soup_.find("td", {"headers": "sa6"}).text)
 
+        lst_party_valid_votes.append(parties_votes(soup_))
 
     #List of registered voters, appending to main data
     lst_registered_voters = clear_number(lst_registered_voters_temp)
     lst_all_collected_data = append_to_main_list(lst_all_collected_data, lst_registered_voters)
 
+
     #List of envelopes received, appending to main data
     lst_envelopes_received = clear_number(lst_envelopes_received_temp)
     lst_all_collected_data = append_to_main_list(lst_all_collected_data, lst_envelopes_received)
+
 
     #List of valid votes, appending to main data
     lst_valid_votes_sum = clear_number(lst_valid_votes_sum_temp)
     lst_all_collected_data = append_to_main_list(lst_all_collected_data, lst_valid_votes_sum)
 
+
+    #Appending Parties votes to main data
+    for i in range(len(lst_all_collected_data)):
+        lst_all_collected_data[i].extend(lst_party_valid_votes[i])
+
     pp(lst_all_collected_data)
-
-
 
 
 
@@ -92,14 +100,6 @@ def main():
     #         pass
     #     else:
     #         lst_parties_names.extend(lst_temp)
-
-
-
-
-
-
-
-
 
 
 
@@ -143,6 +143,20 @@ def townships_urls(main_page_url: str, links: list) -> list:
 def clear_number(lst: list) -> list:
     return [item.replace('\xa0', '') for item in lst]
 
+
+#Function for valid votes of Parties
+def parties_votes(html_soup) -> list:
+    lst_party_valid_votes = []
+    for i in range(1,8): #To generalize the number of lists of valid Parties votes (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
+        try:
+            lst_temp = [elem.text for elem in html_soup.find_all("td", {"headers":f"t{i}sa2 t{i}sb3"})]
+        except IndexError:
+            pass
+        else:
+            lst_party_valid_votes.extend(lst_temp)
+
+    return lst_party_valid_votes
+
 main()
 
 
@@ -168,7 +182,7 @@ main()
 #     else:
 #         lst_parties_names.extend(lst_temp)
 #
-# #List of valid votes of Parties
+# List of valid votes of Parties
 # lst_party_valid_votes = []
 # for i in range(1,8): #To generalize the number of lists of valid Parties votes (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
 #     try:
