@@ -19,6 +19,9 @@ def main():
     URL = url
     results_file = "town_results.csv"
     core_url = 'https://volby.cz/pls/ps2017nss/'
+
+    #Purpose of this main data list is to collect continuously all scrapped data (lists),
+    # and at the end insert it into csv as list of lists
     lst_all_collected_data = []
 
 
@@ -26,16 +29,42 @@ def main():
     html = r.text
     soup = BS(html, "html.parser")
 
+
+    #Townships codes creation, appending to main data list
     lst_townships_codes = township_codes(soup)
     lst_all_collected_data = [[elem] for elem in lst_townships_codes]
 
+
+    #Townships names creation, appending to main data list
     lst_townships_names = township_names(soup)
-    for i in range(len(lst_all_collected_data)): #vytvorit funkci, ktera to vzdy provede
-        lst_all_collected_data[i].append(lst_townships_names[i])
+    lst_all_collected_data = append_to_main_list(lst_all_collected_data, lst_townships_names)
 
 
+    #Extract of links of Townships, creation of url links to go level deeper to extract concrete election data
     lst_townships_links = townships_links(soup)
     lst_townships_urls = townships_urls(core_url, lst_townships_links)
+
+    lst_temp = []
+    for link in lst_townships_urls:
+        r_ = requests.get(link)
+        html_ = r_.text
+        soup_ = BS(html_, "html.parser")
+        lst_registered_voters = soup_.find("td", {"headers": "sa2"}).text
+        #envelopes_received = soup_.find("td", {"headers": "sa5"}).text
+        #valid_votes_sum = soup_.find("td", {"headers": "sa6"}).text
+
+        lst_temp.append(lst_registered_voters)
+    print(lst_temp)
+
+
+    # Getting number of registered voters of every Township
+    # lst_registered_voters = soup_link.find("td", {"headers": "sa2"}).text
+
+
+
+
+
+
 
 
 
@@ -46,10 +75,17 @@ def township_codes(html_soup) -> list:
     return [code.text for code in html_soup.find_all("td", {"class":"cislo"})]
 
 
+#Help function, which purpose is to append new scrapped data into main data list
+def append_to_main_list(main_list: list, append_list: list) -> list:
+    for i in range(len(main_list)):
+        main_list[i].append(append_list[i])
+    return main_list
+
+
 #List of all Townships names. Function goes through all blocks of Townships and concatenate them into one
 def township_names(html_soup) -> list:
     lst_township_names = []
-    for i in range(1, 5): #To generalize the number of lists of Township names (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
+    for i in range(1, 8): #To generalize the number of lists of Township names (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
         try:
             lst_temp = [elem.text for elem in html_soup.find_all("td", {"headers":f"t{i}sa1 t{i}sb2"})]
         except IndexError:
@@ -71,11 +107,10 @@ def townships_urls(main_page_url: str, links: list) -> list:
 
 
 
+
 main()
 
 
-#Getting number of registered voters of every Township
-#def get_voters_number(url: str) -> str:
 
 
 
@@ -83,12 +118,9 @@ main()
 
 
 
-# r_0 = requests.get(url_township_0)
-# html_0 = r_0.text
-# soup_0 = BS(html_0, "html.parser")
-#
-# #Registered voters of concrete Township - 0
-# registered_voters_0 = soup_0.find("td", {"headers":"sa2"}).text
+
+
+
 #
 # #Envelopes received of concrete Township - 0
 # envelopes_received_0 = soup_0.find("td", {"headers":"sa5"}).text
@@ -108,7 +140,7 @@ main()
 #
 # #List of valid votes of Parties
 # lst_party_valid_votes = []
-# for i in range(1,5): #To generalize the number of lists of valid Parties votes (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
+# for i in range(1,8): #To generalize the number of lists of valid Parties votes (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
 #     try:
 #         lst_temp = [elem.text for elem in soup_0.find_all("td", {"headers":f"t{i}sa2 t{i}sb3"})]
 #     except IndexError:
