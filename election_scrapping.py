@@ -82,24 +82,45 @@ def main():
     lst_all_collected_data = append_to_main_list(lst_all_collected_data, lst_valid_votes_sum)
 
 
-    #Appending Parties votes to main data
+    #Appending Parties votes to main data list => completing main list of lists for csv file
     for i in range(len(lst_all_collected_data)):
         lst_all_collected_data[i].extend(lst_party_valid_votes[i])
 
-    pp(lst_all_collected_data)
+
+    #csv header - part of Parties names
+    #List of Parties -> as every Township has the same Parties, it is enough to pull just one list from any Township
+    lst_parties_names = []
+    for i in range(1,8):  # To generalize the number of lists of Parties (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
+        try:
+            lst_temp = [elem.text for elem in soup_.find_all("td", {"headers": f"t{i}sa1 t{i}sb2"})]
+        except IndexError:
+            pass
+        else:
+            lst_parties_names.extend(lst_temp)
+
+
+    #Creating list for csv header
+    lst_election_header = ['Township code', 'Township', 'Registered voters', 'Envelopes received', 'Valid votes sum', *lst_parties_names]
+
+
+    #Write ale the data into csv file
+    with open('C:\\Users\\david\\Desktop\\TestFolder\\' + results_file, mode='w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(lst_election_header)
+        writer.writerows(lst_all_collected_data)
 
 
 
-    # List of Parties, as every Township has same Parties, it is enough just to pull the list from the first Township
-    # lst_parties_names = []
-    # for i in range(1,
-    #                5):  # To generalize the number of lists of Parties (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
-    #     try:
-    #         lst_temp = [elem.text for elem in soup_0.find_all("td", {"headers": f"t{i}sa1 t{i}sb2"})]
-    #     except IndexError:
-    #         pass
-    #     else:
-    #         lst_parties_names.extend(lst_temp)
+# #Creation of csv file for inserting scrapped data
+# path = "C:\\Users\\david\\Desktop\\TestFolder\\test.csv"
+# if os.path.exists(path):
+#     with open(path, "a", newline="") as f:
+#         writer = csv.writer(f)
+#         writer.writerow(lst_values)
+# else:
+#     with open(path, "w", newline="") as f:
+#         writer = csv.writer(f)
+#         writer.writerow(lst_header)
 
 
 
@@ -157,55 +178,6 @@ def parties_votes(html_soup) -> list:
 
     return lst_party_valid_votes
 
+
 main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# #List of Parties
-# lst_parties_names = []
-# for i in range(1,5): #To generalize the number of lists of Parties (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
-#     try:
-#         lst_temp = [elem.text for elem in soup_0.find_all("td", {"headers":f"t{i}sa1 t{i}sb2"})]
-#     except IndexError:
-#         pass
-#     else:
-#         lst_parties_names.extend(lst_temp)
-#
-# List of valid votes of Parties
-# lst_party_valid_votes = []
-# for i in range(1,8): #To generalize the number of lists of valid Parties votes (if there would be more than 3 lists) I use try: except IndexError:, which  should cover non-existed lists
-#     try:
-#         lst_temp = [elem.text for elem in soup_0.find_all("td", {"headers":f"t{i}sa2 t{i}sb3"})]
-#     except IndexError:
-#         pass
-#     else:
-#         lst_party_valid_votes.extend(lst_temp)
-#
-# #Creation of list, which will be header in csv file. It consists of concrete required (scrapped) data and all Parties
-# lst_header_data_required = ['Township code', 'Township', 'Registered voters', 'Envelopes received', 'Valid votes sum']
-# lst_header = lst_header_data_required + lst_parties_names
-#
-# #Creation of ordered list, where every item is sorted based on its order in list header
-# lst_values = [lst_township_codes[0], lst_township_names[0], registered_voters_0, envelopes_received_0, valid_votes_sum_0, *lst_party_valid_votes]
-#
-# #Creation of csv file for inserting scrapped data
-# path = "C:\\Users\\david\\Desktop\\TestFolder\\test.csv"
-# if os.path.exists(path):
-#     with open(path, "a", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(lst_values)
-# else:
-#     with open(path, "w", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(lst_header)
