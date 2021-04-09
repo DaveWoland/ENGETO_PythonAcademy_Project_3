@@ -8,17 +8,14 @@ from pprint import pprint as pp
 #csv file will include following columns from election scraper:
 #Township code, Township, Registered voters, Envelopes received, Valid votes sum, Parties - Votes...
 
-#URL = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
-URL = input("http: ")
-
+#test URL = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
 
 
 def main():
-    #URL = sys.argv[1]
-    #results_file = sys.argv[2]
+    URL = sys.argv[1]
+    results_file = sys.argv[2]
 
-    results_file = "town_results.csv"
-    core_url = 'https://volby.cz/pls/ps2017nss/'
+    CORE_URL = 'https://volby.cz/pls/ps2017nss/'
 
     #Purpose of this main data list is to collect continuously all scrapped data (lists),
     # and at the end insert it into csv as list of lists
@@ -43,7 +40,7 @@ def main():
 
     #Extract of links of Townships, creation of url links to go level deeper to extract concrete election data
     lst_townships_links = townships_links(soup)
-    lst_townships_urls = townships_urls(core_url, lst_townships_links)
+    lst_townships_urls = townships_urls(CORE_URL, lst_townships_links)
 
 
     #Extracting registered_voters, envelopes_received, valid_votes_sum and Parties votes for one Township for each loop iteration. And so on through all Townships_urls
@@ -107,7 +104,7 @@ def main():
     print("SAVING DATA TO FILE: ", results_file)
 
     #Write ale the data into csv file
-    with open('C:\\Users\\david\\Desktop\\TestFolder\\' + str(results_file), mode='w', newline='') as f:
+    with open(results_file, mode='w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(lst_election_header)
         writer.writerows(lst_all_collected_data)
