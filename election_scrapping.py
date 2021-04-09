@@ -3,27 +3,39 @@ import requests
 import sys
 from bs4 import BeautifulSoup as BS
 import csv
-from pprint import pprint as pp
+
 
 #csv file will include following columns from election scraper:
 #Township code, Township, Registered voters, Envelopes received, Valid votes sum, Parties - Votes...
 
-#test URL = 'https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108'
-
 
 def main():
-    URL = sys.argv[1]
-    results_file = sys.argv[2]
+
+    #Checking correct argv inputs
+    try:
+        URL = sys.argv[1]
+        results_file = sys.argv[2]
+    except:
+        print("Wrong input!")
+        exit()
+
 
     CORE_URL = 'https://volby.cz/pls/ps2017nss/'
 
-    #Purpose of this main data list is to collect continuously all scrapped data (lists),
-    # and at the end insert it into csv as list of lists
+    #Creationg main data list, its purpose is to collect continuously all scrapped data (lists), and at the end insert it into csv as list of lists
     lst_all_collected_data = []
 
-    print("DOWNLOADING... DATA FROM CHOSEN URL: ", URL)
 
     r = requests.get(URL)
+    try:
+        assert r.status_code == 200 #Checking returning correct status code
+    except AssertionError:
+        print("Wrong link!")
+        exit()
+
+    print(r.status_code)
+    print("DOWNLOADING... DATA FROM CHOSEN URL: ", URL)
+
     html = r.text
     soup = BS(html, "html.parser")
 
