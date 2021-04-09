@@ -22,7 +22,7 @@ HOW TO RUN THE PROJECT
 
 To run the program election_scrapping.py via command line, you need to input two mandatory arguments.
 Win Example:
-   >election_scrapping.py <link_of_township> <name_of_output_file.csv>
+   election_scrapping.py <link_of_township> <name_of_output_file.csv>
         
 The results will be extracted and saved as .csv file.
 
@@ -34,7 +34,7 @@ Election results of Nymburk Township:
   2. argument: nymburk_results.csv
 
 Running the program:
-  >election_scrapping.py "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108" "nymburk_results.csv"
+  election_scrapping.py "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108" "nymburk_results.csv"
 
 Process:
   DOWNLOADING... DATA FROM CHOSEN URL:  https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2108
